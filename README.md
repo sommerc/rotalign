@@ -28,7 +28,11 @@ The ouput movie is writting as .tif file using the suffix **"_aligned.tif"**. On
 
 ## Usage
 Process two .tif files
-```
+```bash
+# first activate conda environment by
+# conda activate rotalign_env
+# (see below)
+
 rotalign --coords coordinate-file.csv movie_1.tif movie_2.tif
 ```
 
