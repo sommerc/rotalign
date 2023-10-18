@@ -54,10 +54,6 @@ optional arguments:
 
 ```
 
-
-
-
-
 ## Setup
 
 ```bash

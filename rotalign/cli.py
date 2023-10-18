@@ -55,7 +55,6 @@ def umeyama(P, Q):
     d = (np.linalg.det(V) * np.linalg.det(W)) < 0.0
 
     if d:
-        print("Mirror?")
         S[-1] = -S[-1]
         V[:, -1] = -V[:, -1]
 
@@ -111,7 +110,7 @@ def run(mov_in_fn, coord_fn):
     tif_path, tif_fn = os.path.split(mov_in_fn)
     tif_base_fn, _ = os.path.splitext(tif_fn)
 
-    print(f"Reading file {tif_fn}")
+    print(f" - Reading file {tif_fn}")
     print("*" * 80)
     mov_in_raw = tifffile.imread(mov_in_fn)
     z_pxs, y_pxs, x_pxs = read_tiff_voxel_size_zyx(mov_in_fn)
@@ -127,12 +126,21 @@ def run(mov_in_fn, coord_fn):
     COORDS_TAB["frame"] = COORDS_TAB["Frame #"] - 1
 
     coords_tab = COORDS_TAB[COORDS_TAB["name"] == tif_base_fn].sort_values("frame")
+
     if len(coords_tab) == 0:
-        print(f"Movie {tif_base_fn} not found in coords file {coord_fn}. Skipping...")
+        print(
+            f"Error: Movie {tif_base_fn} not found in coords file {coord_fn}. Skipping..."
+        )
         return
 
     t_min = coords_tab.frame.min()
     t_max = coords_tab.frame.max()
+
+    for t in range(t_min, t_max + 1):
+        if t not in coords_tab.frame.to_list():
+            print(f"Error: Missing annotation for time frame '{t}', skipping...")
+            return
+
     coords_tab["frame"] = coords_tab["frame"] - t_min
 
     coords_tab = coords_tab.groupby("frame")[
@@ -148,17 +156,17 @@ def run(mov_in_fn, coord_fn):
 
     #
 
-    coords_tab["Xsa_px"] = (coords_tab["Xsa"] / x_pxs).astype(int)
-    coords_tab["Ysa_px"] = (coords_tab["Ysa"] / y_pxs).astype(int)
-    coords_tab["Zsa_px"] = (coords_tab["Zsa"] / z_pxs).astype(int)
+    coords_tab["Xsa_px"] = np.round(coords_tab["Xsa"] / x_pxs).astype(int)
+    coords_tab["Ysa_px"] = np.round(coords_tab["Ysa"] / y_pxs).astype(int)
+    coords_tab["Zsa_px"] = np.round(coords_tab["Zsa"] / z_pxs).astype(int)
 
-    coords_tab["Xcm_px"] = (coords_tab["Xcm"] / x_pxs).astype(int)
-    coords_tab["Ycm_px"] = (coords_tab["Ycm"] / y_pxs).astype(int)
-    coords_tab["Zcm_px"] = (coords_tab["Zcm"] / z_pxs).astype(int)
+    coords_tab["Xcm_px"] = np.round(coords_tab["Xcm"] / x_pxs).astype(int)
+    coords_tab["Ycm_px"] = np.round(coords_tab["Ycm"] / y_pxs).astype(int)
+    coords_tab["Zcm_px"] = np.round(coords_tab["Zcm"] / z_pxs).astype(int)
 
-    coords_tab["Xpb_px"] = (coords_tab["Xpb"] / x_pxs).astype(int)
-    coords_tab["Ypb_px"] = (coords_tab["Ypb"] / y_pxs).astype(int)
-    coords_tab["Zpb_px"] = (coords_tab["Zpb"] / z_pxs).astype(int)
+    coords_tab["Xpb_px"] = np.round(coords_tab["Xpb"] / x_pxs).astype(int)
+    coords_tab["Ypb_px"] = np.round(coords_tab["Ypb"] / y_pxs).astype(int)
+    coords_tab["Zpb_px"] = np.round(coords_tab["Zpb"] / z_pxs).astype(int)
 
     mov_centered = np.zeros((t_size, z_size, c_size, y_size, x_size), dtype=np.uint8)
 
@@ -219,7 +227,7 @@ def run(mov_in_fn, coord_fn):
             mov_t = tf.warp(mov_iso[t, :, c], cc, preserve_range=True, order=1)
             mov_out[t, :, c, :, :] = mov_t
 
-    print(f"Saving output...")
+    print(f" - Saving output...")
     print("*" * 80)
     tifffile.imsave(
         f"{tif_path}/{tif_base_fn}_aligned.tif",
