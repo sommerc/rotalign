@@ -8,9 +8,9 @@ First, the volume of each time frame is resampled to isotropic resolution. The p
 
 The coordinates file name needs to contain the header column names:
 
-```
+```python
 "Frame #",     # frame index (starting from 1)
-"name",        # name of the .tif image
+"name",        # name of the .tif image (relative to coordinate file)
 "Xcm",         # X position of CM in micron 
 "Ycm",         # ...
 "Zcm",         # ...
@@ -27,13 +27,38 @@ The coordinates file name needs to contain the header column names:
 The ouput movie is writting as .tif file using the suffix **"_aligned.tif"**. Only time frames contained in the coordinates file are processed and exported.
 
 ## Usage
+Process two .tif files
+```
+rotalign --coords coordinate-file.csv movie_1.tif movie_2.tif
+```
 
-```rotalign --coords <coordinate-file.csv> <movie_1.tif> <movie_2.tif>...```
+Get CLI help
+```
+rotalign --help
+
+usage: rotalign [-h] -c COORDS input_tifs [input_tifs ...]
+
+Rotational alignment
+
+positional arguments:
+  input_tifs            Input tif file(s)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -c COORDS, --coords COORDS
+                        Tracked coordinates file for SA, PB and CM (.csv)
+
+```
+
+
+
 
 
 ## Setup
 
-```
+```bash
+# open an anaconda/miniconda prompt
+
 # create separate python environment 
 conda create -n rotalign_env python=3.9 pip
 
