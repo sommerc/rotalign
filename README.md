@@ -60,7 +60,7 @@ optional arguments:
 # open an anaconda/miniconda prompt
 
 # create separate python environment 
-conda create -n rotalign_env python=3.9 pip
+conda create -n rotalign_env python=3.9 pip git
 
 # activate environment
 conda activate rotalign_env
