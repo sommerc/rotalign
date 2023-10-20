@@ -12,7 +12,7 @@ from shutil import rmtree
 from setuptools import find_packages, setup, Command
 
 # Package meta-data.
-NAME = "rotalign"
+NAME = "Rotalign"
 DESCRIPTION = "Rotate volume to landmarks"
 URL = "https://github.com/sommerc/rotalign"
 EMAIL = "chrisotphsommer23@gmail..com"
@@ -90,7 +90,7 @@ setup(
     author_email=EMAIL,
     python_requires=REQUIRES_PYTHON,
     url=URL,
-    py_modules=["rotalign"],
+    packages=find_packages(),
     entry_points={
         "console_scripts": ["rotalign=rotalign.cli:main"],
     },
