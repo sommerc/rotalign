@@ -193,7 +193,8 @@ def run(mov_in_fn, coord_fn):
 
     mov_out = np.zeros((t_size, z_iso_size, c_size, y_size, x_size), np.uint8)
 
-    for t in trange(t_size, desc="  - Aligning frames...", position=1):
+    new_points = []
+    for t in trange(t_size, desc="  - Aligning frames..."):
         vec_sa = [
             coords_tab["Zsa"].loc[t] - coords_tab["Zcm"].loc[t],
             coords_tab["Ysa"].loc[t] - coords_tab["Ycm"].loc[t],
@@ -214,6 +215,14 @@ def run(mov_in_fn, coord_fn):
 
         R = umeyama(P, Q)
 
+        center_in_px = np.array([z_iso_size // 2, y_size // 2, x_size // 2])
+
+        new_rot_sa = np.round(R.T.dot(vec_sa) / x_pxs).astype(int) + center_in_px
+        new_rot_pb = np.round(R.T.dot(vec_pb) / x_pxs).astype(int) + center_in_px
+
+        new_points.append([t] + new_rot_sa.tolist() + ["SA"])
+        new_points.append([t] + new_rot_pb.tolist() + ["PB"])
+
         mg = np.mgrid[
             -z_iso_size // 2 : z_iso_size // 2,
             -y_size // 2 : y_size // 2,
@@ -221,14 +230,22 @@ def run(mov_in_fn, coord_fn):
         ]
         mg_rot = R.dot(mg.reshape(3, -1)).reshape(mg.shape)
 
-        cc = (mg_rot.T + np.array([z_iso_size // 2, 256, 256])).T
+        cc = (mg_rot.T + center_in_px).T
 
-        for c in trange(c_size, desc="  |_ channel...", position=1, leave=False):
+        for c in trange(
+            c_size,
+            desc=f"  |_ channel {c}...",
+        ):
             mov_t = tf.warp(mov_iso[t, :, c], cc, preserve_range=True, order=1)
             mov_out[t, :, c, :, :] = mov_t
 
     print(f" - Saving output...")
     print("*" * 80)
+
+    pd.DataFrame(
+        new_points, columns=["axis-0", "axis-1", "axis-2", "axis-3", "name"]
+    ).to_csv(f"{tif_path}/{tif_base_fn}_aligned_points.csv", index_label="index")
+
     tifffile.imsave(
         f"{tif_path}/{tif_base_fn}_aligned.tif",
         mov_out,
@@ -236,6 +253,7 @@ def run(mov_in_fn, coord_fn):
         resolution=(1.0 / x_pxs, 1.0 / y_pxs),
         metadata={"spacing": x_pxs, "unit": "um", "axes": "TZCYX"},
     )
+    print("Done")
     print()
 
 

@@ -24,7 +24,10 @@ The coordinates file name needs to contain the header column names:
 
 "Frame #" may contain two positions for **SA** for a single time frame. In that case **SA** is set as the mean location of the two.
 
-The ouput movie is writting as .tif file using the suffix **"_aligned.tif"**. Only time frames contained in the coordinates file are processed and exported.
+## Output
+The ouput movie is written as .tif file using the suffix **"_aligned.tif"**. Only time frames contained in the coordinates file are processed and exported.
+
+The transformed points with respect to the new output movies are supplied as Napari compatible point layer with suffix: **_aligned_points.csv**. It contains the coordinates of **SA** and **PB** in pixel.
 
 ## Usage
 Process two .tif files
