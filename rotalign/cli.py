@@ -156,17 +156,17 @@ def run(mov_in_fn, coord_fn):
 
     #
 
-    coords_tab["Xsa_px"] = np.round(coords_tab["Xsa"] / x_pxs).astype(int)
-    coords_tab["Ysa_px"] = np.round(coords_tab["Ysa"] / y_pxs).astype(int)
-    coords_tab["Zsa_px"] = np.round(coords_tab["Zsa"] / z_pxs).astype(int)
+    coords_tab["Xsa_px"] = coords_tab["Xsa"] / x_pxs
+    coords_tab["Ysa_px"] = coords_tab["Ysa"] / y_pxs
+    coords_tab["Zsa_px"] = coords_tab["Zsa"] / z_pxs
 
-    coords_tab["Xcm_px"] = np.round(coords_tab["Xcm"] / x_pxs).astype(int)
-    coords_tab["Ycm_px"] = np.round(coords_tab["Ycm"] / y_pxs).astype(int)
-    coords_tab["Zcm_px"] = np.round(coords_tab["Zcm"] / z_pxs).astype(int)
+    coords_tab["Xcm_px"] = coords_tab["Xcm"] / x_pxs
+    coords_tab["Ycm_px"] = coords_tab["Ycm"] / y_pxs
+    coords_tab["Zcm_px"] = coords_tab["Zcm"] / z_pxs
 
-    coords_tab["Xpb_px"] = np.round(coords_tab["Xpb"] / x_pxs).astype(int)
-    coords_tab["Ypb_px"] = np.round(coords_tab["Ypb"] / y_pxs).astype(int)
-    coords_tab["Zpb_px"] = np.round(coords_tab["Zpb"] / z_pxs).astype(int)
+    coords_tab["Xpb_px"] = coords_tab["Xpb"] / x_pxs
+    coords_tab["Ypb_px"] = coords_tab["Ypb"] / y_pxs
+    coords_tab["Zpb_px"] = coords_tab["Zpb"] / z_pxs
 
     mov_centered = np.zeros((t_size, z_size, c_size, y_size, x_size), dtype=np.uint8)
 
@@ -222,6 +222,7 @@ def run(mov_in_fn, coord_fn):
 
         new_points.append([t] + new_rot_sa.tolist() + ["SA"])
         new_points.append([t] + new_rot_pb.tolist() + ["PB"])
+        new_points.append([t] + center_in_px.tolist() + ["CM"])
 
         mg = np.mgrid[
             -z_iso_size // 2 : z_iso_size // 2,
@@ -232,9 +233,8 @@ def run(mov_in_fn, coord_fn):
 
         cc = (mg_rot.T + center_in_px).T
 
-        for c in trange(
+        for c in range(
             c_size,
-            desc=f"  |_ channel {c}...",
         ):
             mov_t = tf.warp(mov_iso[t, :, c], cc, preserve_range=True, order=1)
             mov_out[t, :, c, :, :] = mov_t
@@ -260,7 +260,7 @@ def run(mov_in_fn, coord_fn):
 def main():
     args = get_args()
 
-    print("\nRotational Embryo alignh")
+    print("\nRotational Embryo alignment:")
     print("#" * 80)
     for arg in vars(args):
         print(f" {arg:28s}", getattr(args, arg))
