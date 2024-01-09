@@ -12,7 +12,7 @@ from shutil import rmtree
 from setuptools import find_packages, setup, Command
 
 # Package meta-data.
-NAME = "Rotalign"
+NAME = "rotalign"
 DESCRIPTION = "Rotate volume to landmarks"
 URL = "https://github.com/sommerc/rotalign"
 EMAIL = "chrisotphsommer23@gmail..com"
