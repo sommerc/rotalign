@@ -247,14 +247,13 @@ def run(mov_in_fn, coord_fn):
     ).to_csv(f"{tif_path}/{tif_base_fn}_aligned_points.csv", index_label="index")
 
     tifffile.imsave(
-        f"{tif_path}/{tif_base_fn}_aligned.tif",
+        f"{tif_path}/{tif_base_fn}_aligned.tiff",
         mov_out,
         imagej=True,
         resolution=(1.0 / x_pxs, 1.0 / y_pxs),
         metadata={"spacing": x_pxs, "unit": "um", "axes": "TZCYX"},
     )
     print("Done")
-    print()
 
 
 def main():
