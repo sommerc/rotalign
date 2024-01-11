@@ -92,7 +92,10 @@ setup(
     url=URL,
     packages=find_packages(),
     entry_points={
-        "console_scripts": ["rotalign=rotalign.cli:main"],
+        "console_scripts": [
+            "rotalign=rotalign.cli:main",
+            "downscale2h5=rotalign.utils:downscale2h5",
+        ],
     },
     install_requires=REQUIRED,
     include_package_data=True,
