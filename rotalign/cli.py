@@ -112,7 +112,7 @@ def run(mov_in_fn, coord_fn):
 
     print(f" - Reading file {tif_fn}")
     print("*" * 80)
-    mov_in_raw = tifffile.imread(mov_in_fn)
+    mov_in_raw = tifffile.memmap(mov_in_fn)
     z_pxs, y_pxs, x_pxs = read_tiff_voxel_size_zyx(mov_in_fn)
 
     COORDS_TAB = pd.read_csv(coord_fn)
@@ -133,7 +133,7 @@ def run(mov_in_fn, coord_fn):
         )
         return
 
-    t_min = coords_tab.frame.min()
+    t_min = 0
     t_max = coords_tab.frame.max()
 
     for t in range(t_min, t_max + 1):
@@ -148,11 +148,9 @@ def run(mov_in_fn, coord_fn):
     ].mean()
 
     # crop time
-    t_size, z_size, c_size, y_size, x_size = mov_in_raw.shape
+    _, z_size, c_size, y_size, x_size = mov_in_raw.shape
 
-    mov_in_raw = mov_in_raw[t_min : t_max + 1, ...]
-
-    t_size = mov_in_raw.shape[0]
+    t_size = t_max
 
     #
 
@@ -171,6 +169,8 @@ def run(mov_in_fn, coord_fn):
     mov_centered = np.zeros((t_size, z_size, c_size, y_size, x_size), dtype=np.uint8)
 
     for t in trange(t_size, desc="  - centering to CM"):
+        if t not in coords_tab.index: continue
+
         for c in range(c_size):
             mov_slice = mov_in_raw[t, :, c, :, :]
             z_sft = z_size // 2 - coords_tab.loc[t].Zcm_px
@@ -186,6 +186,7 @@ def run(mov_in_fn, coord_fn):
     z_iso_size = int(round((z_pxs / x_pxs) * z_size))
     mov_iso = np.zeros((t_size, z_iso_size, c_size, y_size, x_size), dtype=np.uint8)
     for t in trange(t_size, desc="  - resampling to isotropic resolution"):
+        if t not in coords_tab.index: continue
         for c in range(c_size):
             mov_iso[t, :, c, ...] = ndi.zoom(
                 mov_centered[t, :, c, ...], (z_pxs / x_pxs, 1, 1), order=1
@@ -195,6 +196,8 @@ def run(mov_in_fn, coord_fn):
 
     new_points = []
     for t in trange(t_size, desc="  - Aligning frames..."):
+        if t not in coords_tab.index: continue
+        
         vec_sa = [
             coords_tab["Zsa"].loc[t] - coords_tab["Zcm"].loc[t],
             coords_tab["Ysa"].loc[t] - coords_tab["Ycm"].loc[t],
