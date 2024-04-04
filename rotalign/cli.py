@@ -138,8 +138,8 @@ def run(mov_in_fn, coord_fn):
 
     for t in range(t_min, t_max + 1):
         if t not in coords_tab.frame.to_list():
-            print(f"Error: Missing annotation for time frame '{t}', skipping...")
-            return
+            print(f"Warning: Missing annotation for time frame '{t}', skipping...")
+            
 
     coords_tab["frame"] = coords_tab["frame"] - t_min
 
